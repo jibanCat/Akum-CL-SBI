@@ -1,0 +1,6 @@
+# Minimal env for the verification scripts (NumPy 1.x — the repo stack is not NumPy 2 ready).
+# torch / sbi are NOT needed for the MCMC + HBI math verified here.
+numpy<2
+emcee
+colossus
+matplotlib<3.9
