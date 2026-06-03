@@ -14,9 +14,14 @@ Hierarchical Bayesian Inference (HBI) follow‑up. **Local only — do not push 
 - **`nfw_verify.py`** — same comparison on the real Colossus NFW model (confirms the √N_c identity).
 - **`hbi_reuse_demo.py`** — (C) exact analytic hyper‑posterior vs (B) importance‑sampling reuse vs
   (A) full joint hierarchical MCMC; reuse (B) matches the exact (C) cheaply, naive pooling over‑estimates τ.
-- **`mcmc_tutorial.ipynb`** — executed, narrated tutorial: §1–6 the FtJ/JtF toy + real NFW, §7 the HBI
-  reuse validation. Open it to read the results without running.
-- **`figures/`** — `ftj_vs_jtf_toy.png`, `hbi_reuse_validation.png`.
+- **`mcmc_tutorial.ipynb`** — **Tutorial 1** (student-facing, narrated): from one cluster → a population →
+  the FtJ/JtF stacking math (and the `1/N_c` bug) → hierarchical posterior reuse. Full Bayesian equations
+  (likelihood/prior/posterior, the 3 stacking forms, the reuse identity) and commented code.
+- **`mcmc_tutorial_2_richness_mass.ipynb`** — **Tutorial 2** (student-facing): infer the **richness–mass
+  relation** (slope, intercept, scatter) by reusing per-cluster WL mass posteriors. Shows that a naive fit
+  and flat-prior reuse are biased (regression dilution), while reuse **+ the mass distribution** recovers the
+  truth — the importance-sampling `p(x)/π(x)` weight, i.e. the Eddington-bias correction.
+- **`figures/`** — `fig_width_vs_Nc.png`, `fig_hbi_mu_tau.png`, `ftj_vs_jtf_toy.png`, `hbi_reuse_validation.png`.
 
 ## Run (laptop, ~3 min, no cluster, no GPU)
 ```bash
