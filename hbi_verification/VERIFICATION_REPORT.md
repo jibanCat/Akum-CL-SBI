@@ -3,6 +3,15 @@
 *Internal review notes (MFHo). Local only. Not for distribution without the authors' agreement.*
 *Independently re-verified by three adversarial passes (math re-derivation, source re-read, script audit); corrections from that audit are folded in below.*
 
+> **Update (audit branch):** the code findings below were measured against `upstream/main`. Akum's
+> active branch `upstream/tobemerged` (54 commits ahead) **resolves most of them** — the runnable-pipeline
+> bugs (B1, B2, B3, B5, B7), the missing M–c prior (B4 partial), JtF using mean→median, etc. The
+> **load-bearing finding survives**: the printed `1/N_c` FtJ likelihood is implemented verbatim as
+> `joint_logprob` in `mcmcutils.py:64-69` on `tobemerged`, so the FtJ posterior is still √N_c too wide vs
+> the correct joint fit. See `tobemerged_review/BUG_REPORT_tobemerged.md` for the updated status of every
+> finding and `tobemerged_review/tobemerged_demo.py` for the numerical confirmation on Akum's own
+> `joint_logprob`.
+
 ## TL;DR
 
 The paper reports a large **fit-then-join (FTJ) vs join-then-fit (JTF)** difference. After independent

@@ -4,6 +4,10 @@
 Verified by reading the committed source and by the reproductions in `VERIFICATION_REPORT.md`.
 Nothing here has been changed in the code — flag‑only.*
 
+> **This report audits `upstream/main`.** Most of these items are already fixed on Akum's active branch
+> `upstream/tobemerged`. See `tobemerged_review/BUG_REPORT_tobemerged.md` for the updated status (only the
+> `1/N_c` in `joint_logprob` is still load‑bearing there).
+
 Severity key: **🔴 blocker** (prevents running / invalidates results) · **🟠 correctness** ·
 **🟡 paper↔code mismatch** · **⚪ minor**.
 
