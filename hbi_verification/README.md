@@ -19,10 +19,17 @@ Hierarchical Bayesian Inference (HBI) follow‑up. **Local only — do not push 
   profiles); the explicit per-bin "dex" noise model; a **population** with stated true hyper-parameters;
   JtF/FtJ stacking and the `1/N_c` bug (with the **NFW profile + posterior contours**); and the
   **hyper-posterior** recovered by **recycling** per-cluster posteriors. Full equations, commented code, exercises.
-- **`mcmc_tutorial_2_richness_mass.ipynb`** — **Tutorial 2** (student-facing, v2): **mass calibration** of the
+- **`mcmc_tutorial_2_richness_mass.ipynb`** — **Tutorial 2** (student-facing, v2.3): **mass calibration** of the
   **richness–mass relation** ⟨ln λ|M⟩ = A + B·ln(M/M_piv) with lognormal intrinsic scatter σ_{lnλ|M}
-  (Murata 2018 / McClintock 2019). Three attempts, **each with a figure**: naive OLS → flat-prior recycle
-  (both **Eddington-biased**) → recycle **+ the halo mass function** (recovers truth); shows the hyper-posterior on (B, σ).
+  (Murata 2018 / McClintock 2019). Now opens with the **Tutorial 1 → Tutorial 2 bridge** (`a_j` ↔ `x_j`,
+  `samples_one` ↔ `wl_samples[j]`) and an explicit **multi-richness-bin** sample (3 bins, drawn from
+  `p(M|bin) ∝ dn/dM × P(λ|M)`, with c from the M–c relation). Three attempts, **each with a figure**:
+  naive OLS → flat-prior recycle (both **Eddington-biased**) → recycle **+ the halo mass function**
+  (recovers truth); shows the hyper-posterior on (B, σ). Includes a polished pitch-slide figure.
+- **`CITATIONS.md`** — arXiv-verified audit of every reference used in the two tutorials (all 9 faithful).
+- **`EDDINGTON_BIAS_NOTE.md`** — short cited brief on how cluster cosmologists handle Eddington bias
+  (mass-function weighting / selection function), with links to Murata 2018, Costanzi 2019, Bocquet
+  2019/2024, Mantz 2010, Sereno CoMaLit, etc. — and how it relates to the GW "selection bias" framing.
 - **`figures/`** — `fig_width_vs_Nc.png`, `fig_hbi_mu_tau.png`, `ftj_vs_jtf_toy.png`, `hbi_reuse_validation.png`.
 
 ## Run (laptop, ~3 min, no cluster, no GPU)
