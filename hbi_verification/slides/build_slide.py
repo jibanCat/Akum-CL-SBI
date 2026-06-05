@@ -14,7 +14,6 @@ def b64(path): return base64.b64encode(open(path, "rb").read()).decode("ascii")
 F = {
     "PIPELINE": b64("/tmp/pipeline_diagram.png"),
     "HBI_MC":   b64("/Users/jibanmac/Documents/GitHub/Akum-CL-SBI/hbi_verification/figures/hbi_mc_population.png"),
-    "RICHNESS": b64("/Users/jibanmac/Documents/GitHub/Akum-CL-SBI/hbi_verification/figures/richness_mass_calibration.png"),
 }
 
 HTML = r"""<!doctype html>
@@ -72,7 +71,7 @@ html,body{margin:0; padding:0; width:100vw; height:100vh; overflow:hidden;
 .hero img{max-height:21vh; max-width:96vw; width:auto; object-fit:contain;}
 
 /* BODY: 3 cards in a row */
-.body3{display:grid; grid-template-columns: 1fr 1.15fr 1.05fr; gap:1.0vw; min-height:0;}
+.body3{display:grid; grid-template-columns: 0.95fr 1.20fr 1.55fr; gap:1.0vw; min-height:0;}
 .card{background:var(--soft); border-radius:12px; padding:1.4vh 1.0vw;
   border-left:5px solid var(--accent); display:flex; flex-direction:column; min-height:0;
   box-shadow: 0 1px 2px rgba(0,0,0,.04);}
@@ -89,7 +88,7 @@ html,body{margin:0; padding:0; width:100vw; height:100vh; overflow:hidden;
   border-radius:4px; font-weight:600;}
 .card a{color:var(--accent); text-decoration:underline; text-decoration-thickness:1px;}
 .card .grow{flex:1 1 auto; min-height:0; display:flex; align-items:center; justify-content:center; margin-top:.5em;}
-.card .grow img{max-height:100%; max-width:100%; width:auto; border-radius:6px;
+.card .grow img{max-height:100%; max-width:100%; width:auto; height:auto; object-fit:contain; border-radius:6px;
   box-shadow:0 1px 3px rgba(0,0,0,.10);}
 .card .tag{font-size:clamp(9px, 0.78vw, 12px); color:var(--muted); margin-top:.4em;}
 ul{margin:.3em 0 .3em 1.0em; padding:0;}
@@ -110,8 +109,8 @@ ul li{margin:.2em 0;}
   <!-- HEADER -->
   <div class="head">
     <div>
-      <h1>A population-inference framework on top of <span style="color:var(--accent2);">CL-SBI</span>: reusing per-cluster posteriors hierarchically</h1>
-      <p class="sub">Follow-up to <i>Gill et al. (in prep.)</i> &mdash; their SBI pipeline produces per-cluster mass&ndash;concentration $(M_{200c},c_{200c})$ posteriors; we recycle those stored chains to infer population-level parameters $\Lambda$ <b>without re-fitting any cluster</b>, at a fraction of the cost of a full joint HBI.</p>
+      <h1>A population-inference layer on top of <span style="color:var(--accent2);">CL-SBI</span>: reuse per-cluster posteriors hierarchically</h1>
+      <p class="sub">Follow-up to <i>Gill et&nbsp;al. (in&nbsp;prep.)</i> &mdash; recycle stored $\{\theta_j^{(s)}\}$ chains into a population hyper-posterior on $\Lambda$, without re-fitting any cluster.</p>
     </div>
     <span class="pill">project pitch &middot; Ming-Feng Ho</span>
   </div>
@@ -124,59 +123,39 @@ ul li{margin:.2em 0;}
   <!-- THREE CARDS -->
   <div class="body3">
 
-    <!-- 1. THE STARTING POINT: WHAT AKUM'S PAPER GIVES US -->
+    <!-- 1. WHAT CL-SBI GIVES US -->
     <div class="card">
-      <h2>What <a href="https://github.com/LSSTDESC/CL-SBI">CL-SBI</a> already gives us</h2>
-      <p><b>Gill et al. (in prep.)</b> validate SBI for per-cluster weak-lensing mass inference: train a
-      neural posterior $p(M,c\!\mid\! d_j)$ once on simulated NFW shear profiles, then evaluate on
-      observed clusters at $\gtrsim\!400\times$ MCMC speed. <b>Each fitted cluster ships with a stored
-      posterior chain.</b></p>
-      <p>Gill et&nbsp;al. flag population-level inference as the next step but leave the formalism open
-      &mdash; <i>that's our entry point</i>.</p>
-      <p><b>Our question:</b> can we build a <i>reuse framework</i> that combines these stored
-      $\{M_j^{(s)}\}$ chains into population-level constraints, without re-running any per-cluster
-      fit, and without paying the cost of a full joint $(\Lambda,\{M_j\})$ HBI?</p>
+      <h2>What <a href="https://github.com/LSSTDESC/CL-SBI">CL-SBI</a> gives us</h2>
+      <p><b>Gill et al. (in prep.)</b> train an SBI emulator on NFW shear profiles &rarr; per-cluster
+      $(M,c)$ posterior chains $\theta_j^{(s)}\!\sim\!p(\theta_j\!\mid\!d_j)$, at $\gtrsim\!400\times$ MCMC speed.</p>
+      <p>The chains are <b>already produced and stored</b>. Gill et&nbsp;al. flag population-level
+      inference as the next step but leave the formalism open.</p>
+      <p><b>Our question:</b> can we combine $\{\theta_j^{(s)}\}_j$ into population constraints
+      <i>without re-fitting any cluster</i>, and without the cost of a joint $(\Lambda,\{\theta_j\})$&nbsp;HBI?</p>
     </div>
 
-    <!-- 2. THE PROPOSAL: recycle stored posteriors -->
+    <!-- 2. THE FRAMEWORK -->
     <div class="card green">
-      <h2>Hierarchical reuse: cheaper than joint HBI</h2>
-      <p>Population (hyper-)parameters $\Lambda=(A,B,\sigma_{\rm intr})$ &mdash; the parameters of a
-      mass&ndash;observable relation $\langle\ln O\mid M\rangle = A + B\ln(M/M_{\rm piv})$ with intrinsic
-      scatter $\sigma_{\rm intr}$. <b>Hyper-posterior</b>, marginalising each cluster's latent mass $M_j$:</p>
-      <p style="font-size:0.92em;"><i>($d_j$ = WL shear profile of cluster $j$, the SBI summary; $O_j$ = a second observable per cluster &mdash; richness $\lambda_j$, or SZ $\xi_j$, $T_{X,j}$ &hellip;)</i></p>
-      <div class="eq">$$p(\Lambda\mid \{d_j,O_j\})\;\propto\;\pi(\Lambda)\,\prod_j\!\int\! p(O_j\mid M_j,\Lambda)\,p(M_j\mid d_j)\,dM_j$$</div>
-      <p><b>Recycling identity.</b> Stored chains $\{M_j^{(s)}\}$ were drawn under the SBI training prior
-      $\pi_0(M)$ (flat in $\log M$ in Gill et&nbsp;al.); importance re-weighting (Thrane&nbsp;&amp;&nbsp;Talbot&nbsp;2019) gives</p>
-      <div class="eq">$$\!\int\!\!\cdot\,dM\;\propto\;\tfrac1S\!\sum_s\!p(O_j\!\mid\!M_j^{(s)},\Lambda)\,\tfrac{p(M_j^{(s)}\mid\Lambda)}{\pi_0(M_j^{(s)})}$$</div>
-      <p>When the population mass prior is taken to be the halo mass function, the importance weight
-      $p(M\mid\Lambda)/\pi_0(M)\propto dn/dM$&nbsp;&mdash; cosmology enters the re-weighting, and Eddington
-      bias is absorbed by construction. <b>Efficiency vs joint HBI:</b> joint samples $(2+N_c)$ dims
-      every step; reuse samples just $\dim\Lambda\!\sim\!3$ &mdash; per-cluster work done <i>once, offline</i>.</p>
-      <p class="tag">Selection enters as an extra $P(\text{detected}\mid M,O)$ factor inside the same product &mdash; deferred to the DESC Note.</p>
+      <h2>The recycle framework</h2>
+      <p>Population hyper-parameters $\Lambda$. <b>Hyper-posterior</b> marginalising each cluster's
+      latent $\theta_j$:</p>
+      <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\!\int\! p(d_j\mid\theta_j)\,p(\theta_j\mid\Lambda)\,d\theta_j$$</div>
+      <p>The integral is expensive&mdash;<i>unless</i> we already have stored chains $\theta_j^{(s)}\!\sim\!p(\theta_j\!\mid\!d_j)$ from some prior $\pi_0$. <b>Recycle them</b> by importance re-weighting (Thrane&nbsp;&amp;&nbsp;Talbot&nbsp;2019):</p>
+      <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{p(\theta_j^{(s)}\mid\Lambda)}{\pi_0(\theta_j^{(s)})}$$</div>
+      <p><b>Joint HBI</b> samples $(\Lambda,\{\theta_j\})$ &rarr; $\dim=\dim\Lambda+N_c$ at every step.
+      <b>Recycle</b> samples $\Lambda$ only &mdash; per-cluster work done <i>once, offline</i>, by CL-SBI.</p>
     </div>
 
-    <!-- 3. FIRST USE CASE + SCIENCE EXTENSION -->
+    <!-- 3. FIRST USE CASE -->
     <div class="card red">
-      <h2>First use case &rarr; science extension</h2>
-      <p><b>First demonstration</b> &mdash; the population $(M,c)$ of the calibration sample, from stored
-      CL-SBI chains alone (no new observable):</p>
+      <h2>First use case: population $(M,c)$</h2>
       <div class="grow">
         <img src="data:image/png;base64,__HBI_MC__" alt="HBI population (M,c) hyper-posterior from CL-SBI chains">
       </div>
-      <p style="margin-top:0.4em;"><small><i>Left:</i> per-cluster CL-SBI posteriors. <i>Right:</i>
-      hyper-posterior on the population mean $(\mu_M,\mu_c)$; recycle (blue) brackets the truth (&starf;),
-      OLS on posterior means (red &times;) is biased.</small></p>
-      <p style="margin-top:0.5em;"><b>Science extension</b> &mdash; add a second observable per cluster:</p>
-      <ul style="margin-top:0.2em;">
-        <li><b>Calibrate $P(\lambda\!\mid\!M)$</b> on DES&nbsp;Y1&nbsp;/&nbsp;LSST clusters from stored CL-SBI chains $+$ catalog richnesses
-        <span style="display:inline-block; vertical-align:middle; margin:0 0.3em;">
-          <img src="data:image/png;base64,__RICHNESS__" alt="richness-mass toy: naive OLS / flat / recycle+dn/dM" style="height:6vh; border-radius:4px; box-shadow:0 1px 2px rgba(0,0,0,.12); vertical-align:middle;">
-        </span>
-        (toy: recycle$+dn/dM$ recovers $B=1.00\pm0.10$, $\sigma_{\ln\lambda\mid M}=0.30\pm0.06$; naive OLS attenuates to $B=0.62$).</li>
-        <li><b>Cluster-count likelihood</b> $\langle N(\lambda)\rangle=\!\int dM\,(dn/dM)\,P(\lambda\!\mid\!M)$ &rarr; $S_8\!\equiv\!\sigma_8(\Omega_m/0.3)^{1/2}$ &mdash; same hierarchical structure as <a href="https://arxiv.org/abs/2310.12213">Bocquet&nbsp;et&nbsp;al.&nbsp;2024</a>.</li>
-        <li><b>Multi-observable</b> ($\lambda$ + SZ + $T_X$) as additional drop-in factors.</li>
-      </ul>
+      <p style="margin-top:0.4em;"><b>Recycle hyper-posterior</b> on $(\mu_M,\mu_c)$ from stored CL-SBI
+      chains alone (no extra observable). Truth&nbsp;= &starf;, OLS on posterior means = &times;.</p>
+      <p style="margin-top:0.3em;"><small>Adding any per-cluster observable $\lambda_j$ extends the same
+      framework to the mass&ndash;observable relation &rarr; abundance &rarr; $S_8$.</small></p>
     </div>
 
   </div>
