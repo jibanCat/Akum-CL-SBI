@@ -144,11 +144,12 @@ ul li{margin:.2em 0;}
       <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{p(\theta_j^{(s)}\mid\Lambda)}{\pi_0(\theta_j^{(s)})}$$</div>
       <p><b>Joint HBI</b> samples $(\Lambda,\{\theta_j\})$ &rarr; $\dim=\dim\Lambda+N_c$ at every step.
       <b>Recycle &#x267B;&#xFE0F;</b> samples $\Lambda$ only &mdash; per-cluster work done <i>once, offline</i>, by CL-SBI.</p>
-      <div class="eq" style="margin-top:0.5em; font-size:0.85em; background:#fff7d6; border-color:#e0c068;">
-        <b>Bonus:</b> $\Lambda$ <i>can be the richness&ndash;mass relation itself.</i>
-        Take $\Lambda=(A,B,\sigma_{\ln\lambda\mid M})$ and<br>
-        $\;\;\;\;p(\theta_j\!\mid\!\Lambda)\;=\;\mathcal{N}\!\left(\ln\lambda_j\,;\,A+B\ln(M_j/M_{\rm piv}),\;\sigma_{\ln\lambda\mid M}^2\right)\,p(M_j)$<br>
-        &rarr; the same recycle &#x267B;&#xFE0F; identity calibrates the MOR &mdash; the input to $S_8$.
+      <div class="eq" style="margin-top:0.5em; font-size:0.84em; background:#fff7d6; border-color:#e0c068; line-height:1.55;">
+        <b>Bonus &mdash; bridge from $(M,c)$ to richness&ndash;mass.</b>
+        Each cluster also has an observed richness $\lambda_j$ (catalog, no extra fit).
+        Promote $\Lambda\!\to\!(A,B,\sigma_{\ln\lambda\mid M})$; reuse the <i>same</i> stored chains $\{M_j^{(s)}\}$:<br>
+        $\;p(\Lambda\!\mid\!\mathrm{data})\,\propto\,\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{\mathcal N(\ln\lambda_j;\,A+B\ln(M_j^{(s)}/M_{\rm piv}),\,\sigma_{\ln\lambda\mid M}^2)\;p(M_j^{(s)})}{\pi_0(M_j^{(s)})}$<br>
+        The observed $\lambda_j$ turns each stored $M$ chain into a constraint on $(A,B,\sigma)$ &mdash; recycle &#x267B;&#xFE0F; $\to$ MOR $\to$ $S_8$.
       </div>
     </div>
 
