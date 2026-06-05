@@ -148,14 +148,15 @@ ul li{margin:.2em 0;}
 
     <!-- 3. FIRST USE CASE -->
     <div class="card red">
-      <h2>First use case: population $(M,c)$</h2>
+      <h2>First use case: population $(M,c)$ scatter</h2>
       <div class="grow">
-        <img src="data:image/png;base64,__HBI_MC__" alt="HBI population (M,c) hyper-posterior from CL-SBI chains">
+        <img src="data:image/png;base64,__HBI_MC__" alt="HBI population (M,c) scatter recovery from CL-SBI chains">
       </div>
-      <p style="margin-top:0.4em;"><b>Recycle hyper-posterior</b> on $(\mu_M,\mu_c)$ from stored CL-SBI
-      chains alone (no extra observable). Truth&nbsp;= &starf;, OLS on posterior means = &times;.</p>
-      <p style="margin-top:0.3em;"><small>Adding any per-cluster observable $\lambda_j$ extends the same
-      framework to the mass&ndash;observable relation &rarr; abundance &rarr; $S_8$.</small></p>
+      <p style="margin-top:0.4em;"><b>Naive stacking biases the population scatter</b> &mdash; mean-stacking
+      adds per-cluster noise on top, shared-$\theta$ fits inherit it as variance.
+      <b>Recycle deconvolves</b> and recovers the truth.</p>
+      <p style="margin-top:0.3em;"><small>Adding $\lambda_j$ promotes $\Lambda$ to the richness&ndash;mass
+      relation &rarr; bridges to $S_8$ (see diagram above).</small></p>
     </div>
 
   </div>
