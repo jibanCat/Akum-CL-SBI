@@ -13,6 +13,7 @@ def b64(path): return base64.b64encode(open(path, "rb").read()).decode("ascii")
 
 F = {
     "PIPELINE": b64("/tmp/pipeline_diagram.png"),
+    "HBI_MC":   b64("/Users/jibanmac/Documents/GitHub/Akum-CL-SBI/hbi_verification/figures/hbi_mc_population.png"),
     "RICHNESS": b64("/Users/jibanmac/Documents/GitHub/Akum-CL-SBI/hbi_verification/figures/richness_mass_calibration.png"),
 }
 
@@ -110,7 +111,7 @@ ul li{margin:.2em 0;}
   <div class="head">
     <div>
       <h1>A population-inference framework on top of <span style="color:var(--accent2);">CL-SBI</span>: reusing per-cluster posteriors hierarchically</h1>
-      <p class="sub">Follow-up to <i>Gill et al. (in prep.)</i> &mdash; their SBI pipeline produces per-cluster $(M,c)$ posteriors; we recycle those stored chains to infer population-level scaling relations <b>without re-fitting any cluster</b> and at a fraction of the cost of a full joint HBI.</p>
+      <p class="sub">Follow-up to <i>Gill et al. (in prep.)</i> &mdash; their SBI pipeline produces per-cluster mass&ndash;concentration $(M_{200c},c_{200c})$ posteriors; we recycle those stored chains to infer population-level parameters $\Lambda$ <b>without re-fitting any cluster</b>, at a fraction of the cost of a full joint HBI.</p>
     </div>
     <span class="pill">project pitch &middot; Ming-Feng Ho</span>
   </div>
@@ -130,45 +131,52 @@ ul li{margin:.2em 0;}
       neural posterior $p(M,c\!\mid\! d_j)$ once on simulated NFW shear profiles, then evaluate on
       observed clusters at $\gtrsim\!400\times$ MCMC speed. <b>Each fitted cluster ships with a stored
       posterior chain.</b></p>
-      <p>The paper's discussion (&sect;6 <i>Hierarchical Modeling</i>) flags population-level
-      inference &mdash; the mass&ndash;observable relation, intrinsic scatter, ultimately cosmology
-      &mdash; as the natural next step but leaves the formalism open.</p>
+      <p>Gill et&nbsp;al. flag population-level inference as the next step but leave the formalism open
+      &mdash; <i>that's our entry point</i>.</p>
       <p><b>Our question:</b> can we build a <i>reuse framework</i> that combines these stored
       $\{M_j^{(s)}\}$ chains into population-level constraints, without re-running any per-cluster
       fit, and without paying the cost of a full joint $(\Lambda,\{M_j\})$ HBI?</p>
-      <p class="tag">Stored per-cluster chains are also what Stage&nbsp;IV WL pipelines (Rubin/Euclid/CMB-S4) will produce at scale, so a posterior-reuse layer is broadly portable.</p>
     </div>
 
     <!-- 2. THE PROPOSAL: recycle stored posteriors -->
     <div class="card green">
       <h2>Hierarchical reuse: cheaper than joint HBI</h2>
-      <p>Population parameters $\Lambda$ (e.g.&nbsp;MOR amplitude, slope, scatter). Hyper-posterior
-      marginalising each cluster's latent mass:</p>
-      <div class="eq">$$p(\Lambda\mid d)\;\propto\;\pi(\Lambda)\,\prod_j\!\int\! p(\mathrm{obs}_j\mid M_j,\Lambda)\,p(M_j\mid d_j)\,dM_j$$</div>
-      <p><b>Recycling identity</b> &mdash; stored chains $\{M_j^{(s)}\}\sim p(M_j\!\mid\!d_j)$ under interim prior $\pi_0$ (GW population trick, Thrane&nbsp;&amp;&nbsp;Talbot&nbsp;2019):</p>
-      <div class="eq">$$\!\int\!\!\cdot\,dM\;\approx\;\tfrac{\mathcal Z_j}{S}\!\sum_s\!p(\mathrm{obs}_j\!\mid\!M_j^{(s)},\Lambda)\,\tfrac{p(M_j^{(s)})}{\pi_0(M_j^{(s)})}$$</div>
-      <p><b>Efficiency vs joint HBI.</b> Joint samples a $(2+N_c)$-dimensional posterior at every step
-      (re-evaluates the per-cluster shear likelihood); reuse samples just $\dim(\Lambda)\!\sim\!3$ &mdash;
-      per-cluster work is done <i>once, offline</i>, by CL-SBI.</p>
-      <p>The weight <span class="callout">$p(M)/\pi_0 = dn/dM$</span> (halo mass function) carries
-      cosmology and removes the Eddington bias <i>by construction</i>.</p>
+      <p>Population (hyper-)parameters $\Lambda=(A,B,\sigma_{\rm intr})$ &mdash; the parameters of a
+      mass&ndash;observable relation $\langle\ln O\mid M\rangle = A + B\ln(M/M_{\rm piv})$ with intrinsic
+      scatter $\sigma_{\rm intr}$. <b>Hyper-posterior</b>, marginalising each cluster's latent mass $M_j$:</p>
+      <p style="font-size:0.92em;"><i>($d_j$ = WL shear profile of cluster $j$, the SBI summary; $O_j$ = a second observable per cluster &mdash; richness $\lambda_j$, or SZ $\xi_j$, $T_{X,j}$ &hellip;)</i></p>
+      <div class="eq">$$p(\Lambda\mid \{d_j,O_j\})\;\propto\;\pi(\Lambda)\,\prod_j\!\int\! p(O_j\mid M_j,\Lambda)\,p(M_j\mid d_j)\,dM_j$$</div>
+      <p><b>Recycling identity.</b> Stored chains $\{M_j^{(s)}\}$ were drawn under the SBI training prior
+      $\pi_0(M)$ (flat in $\log M$ in Gill et&nbsp;al.); importance re-weighting (Thrane&nbsp;&amp;&nbsp;Talbot&nbsp;2019) gives</p>
+      <div class="eq">$$\!\int\!\!\cdot\,dM\;\propto\;\tfrac1S\!\sum_s\!p(O_j\!\mid\!M_j^{(s)},\Lambda)\,\tfrac{p(M_j^{(s)}\mid\Lambda)}{\pi_0(M_j^{(s)})}$$</div>
+      <p>When the population mass prior is taken to be the halo mass function, the importance weight
+      $p(M\mid\Lambda)/\pi_0(M)\propto dn/dM$&nbsp;&mdash; cosmology enters the re-weighting, and Eddington
+      bias is absorbed by construction. <b>Efficiency vs joint HBI:</b> joint samples $(2+N_c)$ dims
+      every step; reuse samples just $\dim\Lambda\!\sim\!3$ &mdash; per-cluster work done <i>once, offline</i>.</p>
+      <p class="tag">Selection enters as an extra $P(\text{detected}\mid M,O)$ factor inside the same product &mdash; deferred to the DESC Note.</p>
     </div>
 
-    <!-- 3. FUTURE-FACING: where reuse takes us -->
+    <!-- 3. FIRST USE CASE + SCIENCE EXTENSION -->
     <div class="card red">
-      <h2>Future-facing: from MOR to cosmology</h2>
-      <p>Once stored chains $+$ a population model are in hand, the same recycling machinery turns the
-      hierarchy into the science output:</p>
-      <ul>
-        <li><b>Calibrate $P(\lambda\!\mid\!M)$ on real DES&nbsp;Y1&nbsp;/&nbsp;LSST clusters</b> using stored CL-SBI chains.</li>
-        <li><b>Plug into the abundance likelihood</b> $\int dM\,dn/dM\cdot P(\lambda\!\mid\!M)$ to constrain $S_8$ &mdash; same hierarchical structure as Bocquet24.</li>
-        <li><b>Multi-observable extension</b> (richness + SZ + X-ray) as drop-in additional factors.</li>
-      </ul>
+      <h2>First use case &rarr; science extension</h2>
+      <p><b>First demonstration</b> &mdash; the population $(M,c)$ of the calibration sample, from stored
+      CL-SBI chains alone (no new observable):</p>
       <div class="grow">
-        <img src="data:image/png;base64,__RICHNESS__" alt="toy: naive OLS / flat-prior recycle / recycle + dn/dM">
+        <img src="data:image/png;base64,__HBI_MC__" alt="HBI population (M,c) hyper-posterior from CL-SBI chains">
       </div>
-      <p><small><b>Toy demonstration on the richness&ndash;mass relation</b>: naive OLS &amp; flat-prior recycle attenuate $B\!\to\!0.62$ (Eddington);
-      recycle $+\,dn/dM$ recovers truth $B=1.00\pm0.10$, $\sigma_{\ln\lambda\mid M}=0.30\pm0.06$.</small></p>
+      <p style="margin-top:0.4em;"><small><i>Left:</i> per-cluster CL-SBI posteriors. <i>Right:</i>
+      hyper-posterior on the population mean $(\mu_M,\mu_c)$; recycle (blue) brackets the truth (&starf;),
+      OLS on posterior means (red &times;) is biased.</small></p>
+      <p style="margin-top:0.5em;"><b>Science extension</b> &mdash; add a second observable per cluster:</p>
+      <ul style="margin-top:0.2em;">
+        <li><b>Calibrate $P(\lambda\!\mid\!M)$</b> on DES&nbsp;Y1&nbsp;/&nbsp;LSST clusters from stored CL-SBI chains $+$ catalog richnesses
+        <span style="display:inline-block; vertical-align:middle; margin:0 0.3em;">
+          <img src="data:image/png;base64,__RICHNESS__" alt="richness-mass toy: naive OLS / flat / recycle+dn/dM" style="height:6vh; border-radius:4px; box-shadow:0 1px 2px rgba(0,0,0,.12); vertical-align:middle;">
+        </span>
+        (toy: recycle$+dn/dM$ recovers $B=1.00\pm0.10$, $\sigma_{\ln\lambda\mid M}=0.30\pm0.06$; naive OLS attenuates to $B=0.62$).</li>
+        <li><b>Cluster-count likelihood</b> $\langle N(\lambda)\rangle=\!\int dM\,(dn/dM)\,P(\lambda\!\mid\!M)$ &rarr; $S_8\!\equiv\!\sigma_8(\Omega_m/0.3)^{1/2}$ &mdash; same hierarchical structure as <a href="https://arxiv.org/abs/2310.12213">Bocquet&nbsp;et&nbsp;al.&nbsp;2024</a>.</li>
+        <li><b>Multi-observable</b> ($\lambda$ + SZ + $T_X$) as additional drop-in factors.</li>
+      </ul>
     </div>
 
   </div>
