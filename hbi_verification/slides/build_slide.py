@@ -109,84 +109,79 @@ ul li{margin:.2em 0;}
   <!-- HEADER -->
   <div class="head">
     <div>
-      <h1>Hierarchical Bayesian mass calibration of clusters via posterior reuse</h1>
-      <p class="sub">Recycle stored per-cluster WL mass posteriors to infer the mass&ndash;observable relation that feeds cluster cosmology &mdash; <i>no per-cluster re-fits per cosmology step</i>.</p>
+      <h1>A population-inference framework on top of <span style="color:var(--accent2);">CL-SBI</span>: reusing per-cluster posteriors hierarchically</h1>
+      <p class="sub">Follow-up to <i>Gill et al. (in prep.)</i> &mdash; their SBI pipeline produces per-cluster $(M,c)$ posteriors; we recycle those stored chains to infer population-level scaling relations <b>without re-fitting any cluster</b> and at a fraction of the cost of a full joint HBI.</p>
     </div>
     <span class="pill">project pitch &middot; Ming-Feng Ho</span>
   </div>
 
   <!-- HERO PIPELINE -->
   <div class="hero">
-    <img src="data:image/png;base64,__PIPELINE__" alt="lambda observed -> M latent -> Lambda -> cosmology">
+    <img src="data:image/png;base64,__PIPELINE__" alt="CL-SBI per-cluster posteriors -> hierarchical reuse -> scaling relation -> cosmology">
   </div>
 
   <!-- THREE CARDS -->
   <div class="body3">
 
-    <!-- 1. THE PROBLEM (cluster cosmologists already know this) -->
+    <!-- 1. THE STARTING POINT: WHAT AKUM'S PAPER GIVES US -->
     <div class="card">
-      <h2>The mass-calibration bottleneck</h2>
-      <p>Cluster counts pin $S_8 = \sigma_8\sqrt{\Omega_m/0.3}$ via the
-      abundance integral</p>
-      <div class="eq">$$\langle N(\lambda^{\rm obs}\!\in\!\text{bin},z)\rangle = \!\!\int\!\! dM\;\tfrac{dn}{dM}(M,z;\sigma_8,\Omega_m)\,P(\lambda^{\rm obs}\!\mid\! M)$$</div>
-      <p>So $P(\lambda\mid M)$ &mdash; the mass&ndash;observable relation (MOR) &mdash; is the
-      load-bearing object.</p>
-      <p>Per-cluster WL masses are noisy. <b>Point-mass fits</b> of
-      $\langle M\mid\lambda\rangle$ attenuate the slope (Eddington / regression dilution).
-      <b>Forward-modeling</b> $P(\lambda\mid M)\!\otimes\!dn/dM$
-      (Murata18, Costanzi19, Bocquet24) is unbiased &mdash; but re-evaluates the
-      per-cluster likelihood at <i>every</i> $\Lambda$-proposal in the
-      cosmology MCMC.</p>
-      <p class="tag">Refs:
-        <a href="https://arxiv.org/abs/1707.01907">Murata18</a>,
-        <a href="https://arxiv.org/abs/1810.09456">Costanzi19</a>,
-        <a href="https://arxiv.org/abs/1812.01679">Bocquet19</a>/<a href="https://arxiv.org/abs/2310.12213">24</a>.
-      </p>
+      <h2>What <a href="https://github.com/LSSTDESC/CL-SBI">CL-SBI</a> already gives us</h2>
+      <p><b>Gill et al. (in prep.)</b> validate SBI for per-cluster weak-lensing mass inference: train a
+      neural posterior $p(M,c\!\mid\! d_j)$ once on simulated NFW shear profiles, then evaluate on
+      observed clusters at $\gtrsim\!400\times$ MCMC speed. <b>Each fitted cluster ships with a stored
+      posterior chain.</b></p>
+      <p>The paper's discussion (&sect;6 <i>Hierarchical Modeling</i>) flags population-level
+      inference &mdash; the mass&ndash;observable relation, intrinsic scatter, ultimately cosmology
+      &mdash; as the natural next step but leaves the formalism open.</p>
+      <p><b>Our question:</b> can we build a <i>reuse framework</i> that combines these stored
+      $\{M_j^{(s)}\}$ chains into population-level constraints, without re-running any per-cluster
+      fit, and without paying the cost of a full joint $(\Lambda,\{M_j\})$ HBI?</p>
+      <p class="tag">Stored per-cluster chains are also what Stage&nbsp;IV WL pipelines (Rubin/Euclid/CMB-S4) will produce at scale, so a posterior-reuse layer is broadly portable.</p>
     </div>
 
     <!-- 2. THE PROPOSAL: recycle stored posteriors -->
     <div class="card green">
-      <h2>Proposal: recycle stored posteriors</h2>
-      <p>Treat $(A,B,\sigma_{\ln\lambda\mid M})$ as <b>hyper-parameters</b> $\Lambda$ and
-      marginalise the latent $M_j$ analytically:</p>
-      <div class="eq">$$p(\Lambda\mid d)\propto\pi(\Lambda)\,\prod_j\!\int\! p(\lambda_j\mid M_j,\Lambda)\,p(M_j\mid d_j)\,dM_j$$</div>
-      <p>With stored chains $\{M_j^{(s)}\}\sim p(M_j\mid d_j)$ from an interim prior $\pi_0$
-      (the GW population trick, Thrane&nbsp;&amp;&nbsp;Talbot 2019):</p>
-      <div class="eq">$$\!\int\! \!\cdot\!\,dM\;\approx\;\frac{\mathcal Z_j}{S}\!\sum_s\! p(\lambda_j\mid M_j^{(s)},\Lambda)\,\frac{p(M_j^{(s)})}{\pi_0(M_j^{(s)})}$$</div>
-      <p>The weight <span class="callout">$p(M)/\pi_0 = dn/dM$</span> &mdash; the halo mass function &mdash; is
-      <i>where cosmology enters</i>, and is what kills the Eddington bias.
-      <b>No per-cluster likelihood call at any $\Lambda$.</b></p>
-      <p class="tag">Refs: <a href="https://arxiv.org/abs/1809.02293">Thrane&nbsp;&amp;&nbsp;Talbot19</a>,
-      <a href="https://arxiv.org/abs/1809.02063">Mandel&nbsp;Farr&nbsp;Gair19</a>.</p>
+      <h2>Hierarchical reuse: cheaper than joint HBI</h2>
+      <p>Population parameters $\Lambda$ (e.g.&nbsp;MOR amplitude, slope, scatter). Hyper-posterior
+      marginalising each cluster's latent mass:</p>
+      <div class="eq">$$p(\Lambda\mid d)\;\propto\;\pi(\Lambda)\,\prod_j\!\int\! p(\mathrm{obs}_j\mid M_j,\Lambda)\,p(M_j\mid d_j)\,dM_j$$</div>
+      <p><b>Recycling identity</b> &mdash; stored chains $\{M_j^{(s)}\}\sim p(M_j\!\mid\!d_j)$ under interim prior $\pi_0$ (GW population trick, Thrane&nbsp;&amp;&nbsp;Talbot&nbsp;2019):</p>
+      <div class="eq">$$\!\int\!\!\cdot\,dM\;\approx\;\tfrac{\mathcal Z_j}{S}\!\sum_s\!p(\mathrm{obs}_j\!\mid\!M_j^{(s)},\Lambda)\,\tfrac{p(M_j^{(s)})}{\pi_0(M_j^{(s)})}$$</div>
+      <p><b>Efficiency vs joint HBI.</b> Joint samples a $(2+N_c)$-dimensional posterior at every step
+      (re-evaluates the per-cluster shear likelihood); reuse samples just $\dim(\Lambda)\!\sim\!3$ &mdash;
+      per-cluster work is done <i>once, offline</i>, by CL-SBI.</p>
+      <p>The weight <span class="callout">$p(M)/\pi_0 = dn/dM$</span> (halo mass function) carries
+      cosmology and removes the Eddington bias <i>by construction</i>.</p>
     </div>
 
-    <!-- 3. WHY THIS FITS THE FIELD NOW + toy result -->
+    <!-- 3. FUTURE-FACING: where reuse takes us -->
     <div class="card red">
-      <h2>Why this matters for clusters now</h2>
+      <h2>Future-facing: from MOR to cosmology</h2>
+      <p>Once stored chains $+$ a population model are in hand, the same recycling machinery turns the
+      hierarchy into the science output:</p>
       <ul>
-        <li><b>Computational:</b> decouples per-cluster WL fit from cosmology MCMC; same chains serve any $\Lambda$.</li>
-        <li><b>Modular:</b> works for any pipeline that already stores chains &mdash; SBI <i>or</i> MCMC (e.g. LSSTDESC/CL-SBI).</li>
-        <li><b>Stage&nbsp;IV ready:</b> Rubin/Euclid/CMB-S4 will produce per-cluster posteriors at scale; reuse turns them into an MOR likelihood for free.</li>
-        <li><b>Extensible:</b> drop-in for Bocquet24-style multi-observable population modelling ($\lambda$ + SZ + X-ray).</li>
+        <li><b>Calibrate $P(\lambda\!\mid\!M)$ on real DES&nbsp;Y1&nbsp;/&nbsp;LSST clusters</b> using stored CL-SBI chains.</li>
+        <li><b>Plug into the abundance likelihood</b> $\int dM\,dn/dM\cdot P(\lambda\!\mid\!M)$ to constrain $S_8$ &mdash; same hierarchical structure as Bocquet24.</li>
+        <li><b>Multi-observable extension</b> (richness + SZ + X-ray) as drop-in additional factors.</li>
       </ul>
       <div class="grow">
-        <img src="data:image/png;base64,__RICHNESS__" alt="three attempts: naive OLS / flat recycle / recycle + dn/dM">
+        <img src="data:image/png;base64,__RICHNESS__" alt="toy: naive OLS / flat-prior recycle / recycle + dn/dM">
       </div>
-      <p><small>Toy: <b>naive OLS</b> &amp; <b>flat-prior recycle</b> attenuate $B\!\to\!0.62$ (Eddington);
-      <b>recycle + $dn/dM$</b> recovers truth $B=1.00\pm0.10$, $\sigma_{\ln\lambda\mid M}=0.30\pm0.06$.</small></p>
+      <p><small><b>Toy demonstration on the richness&ndash;mass relation</b>: naive OLS &amp; flat-prior recycle attenuate $B\!\to\!0.62$ (Eddington);
+      recycle $+\,dn/dM$ recovers truth $B=1.00\pm0.10$, $\sigma_{\ln\lambda\mid M}=0.30\pm0.06$.</small></p>
     </div>
 
   </div>
 
   <!-- FOOTER -->
   <div class="foot">
-    <div><b>Roadmap.</b> (i) validate reuse vs joint Bocquet-style MCMC on realistic NFW shear profiles; (ii) multi-observable extension; (iii) DESC Note + open-source notebooks.</div>
+    <div><b>Roadmap.</b> (i) validate reuse vs joint Bocquet-style MCMC on realistic NFW shear profiles using CL-SBI chains; (ii) DESC Note formalising the recycle layer; (iii) Aidan-led notebook tutorials; (iv) extend to multi-observable population inference.</div>
     <div class="refs">
+      <a href="https://arxiv.org/abs/1809.02293">Thrane&amp;Talbot19</a>
+      <a href="https://arxiv.org/abs/1809.02063">MandelFarrGair19</a>
       <a href="https://arxiv.org/abs/1707.01907">Murata18</a>
       <a href="https://arxiv.org/abs/1810.09456">Costanzi19</a>
-      <a href="https://arxiv.org/abs/1812.01679">Bocquet19</a>
       <a href="https://arxiv.org/abs/2310.12213">Bocquet24</a>
-      <a href="https://arxiv.org/abs/1809.02293">Thrane&amp;Talbot19</a>
     </div>
   </div>
 
