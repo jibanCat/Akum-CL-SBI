@@ -127,7 +127,8 @@ ul li{margin:.2em 0;}
     <div class="card">
       <h2>What <a href="https://github.com/LSSTDESC/CL-SBI">CL-SBI</a> gives us</h2>
       <p><b>Gill et al. (in prep.)</b> train an SBI emulator on NFW shear profiles &rarr; per-cluster
-      $(M,c)$ posterior chains $\theta_j^{(s)}\!\sim\!p(\theta_j\!\mid\!d_j)$, at $\gtrsim\!400\times$ MCMC speed.</p>
+      $(M_{\rm vir},c_{\rm vir})$ posterior chains $\theta_j^{(s)}\!\sim\!p(\theta_j\!\mid\!d_j)$,
+      at $\gtrsim\!400\times$ MCMC speed<small> (Gill+, fig.&nbsp;13)</small>.</p>
       <p>The chains are <b>already produced and stored</b>. Gill et&nbsp;al. flag population-level
       inference as the next step but leave the formalism open.</p>
       <p><b>Our question:</b> can we combine $\{\theta_j^{(s)}\}_j$ into population constraints
@@ -142,31 +143,33 @@ ul li{margin:.2em 0;}
       <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\!\int\! p(d_j\mid\theta_j)\,p(\theta_j\mid\Lambda)\,d\theta_j$$</div>
       <p>The integral is expensive&mdash;<i>unless</i> we already have stored chains $\theta_j^{(s)}\!\sim\!p(\theta_j\!\mid\!d_j)$ from some prior $\pi_0$. <b>Recycle &#x267B;&#xFE0F; them</b> by importance re-weighting (Thrane&nbsp;&amp;&nbsp;Talbot&nbsp;2019):</p>
       <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{p(\theta_j^{(s)}\mid\Lambda)}{\pi_0(\theta_j^{(s)})}$$</div>
-      <p><b>Joint HBI</b> samples $(\Lambda,\{\theta_j\})$ &rarr; $\dim=\dim\Lambda+N_c$ at every step.
+      <p><b>Joint HBI</b> samples $(\Lambda,\{\theta_j\})$ &rarr; $\dim=\dim\Lambda+2N_c$ at every step.
       <b>Recycle &#x267B;&#xFE0F;</b> samples $\Lambda$ only &mdash; per-cluster work done <i>once, offline</i>, by CL-SBI.</p>
-      <div class="eq" style="margin-top:0.5em; font-size:0.84em; background:#fff7d6; border-color:#e0c068; line-height:1.55;">
+      <div class="eq" style="margin-top:0.5em; font-size:0.82em; background:#fff7d6; border-color:#e0c068; line-height:1.5;">
         <b>Bonus &mdash; bridge from $(M,c)$ to richness&ndash;mass.</b>
-        Each cluster also has an observed richness $\lambda_j$ (catalog, no extra fit).
-        Promote $\Lambda\!\to\!(A,B,\sigma_{\ln\lambda\mid M})$; reuse the <i>same</i> stored chains $\{M_j^{(s)}\}$:<br>
-        $\;p(\Lambda\!\mid\!\mathrm{data})\,\propto\,\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{\mathcal N(\ln\lambda_j;\,A+B\ln(M_j^{(s)}/M_{\rm piv}),\,\sigma_{\ln\lambda\mid M}^2)\;p(M_j^{(s)})}{\pi_0(M_j^{(s)})}$<br>
-        The observed $\lambda_j$ turns each stored $M$ chain into a constraint on $(A,B,\sigma)$ &mdash; recycle &#x267B;&#xFE0F; $\to$ MOR $\to$ $S_8$.
+        Each cluster also has $\lambda_j$ (catalog, no extra fit). Promote $\Lambda\!\to\!(A,B,\sigma_{\ln\lambda\mid M},\;\Omega_m,\sigma_8)$ and reuse the same chains $\{M_j^{(s)}\}$:<br>
+        $\;p(\Lambda\!\mid\!\mathrm{data})\,\propto\,\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{\mathcal N(\ln\lambda_j;\,A+B\ln(M_j^{(s)}/M_{\rm piv}),\,\sigma_{\ln\lambda\mid M}^2)\,\cdot\,\boxed{n_{\rm HMF}(M_j^{(s)};\,\Omega_m,\sigma_8)}}{\pi_0(M_j^{(s)})}$<br>
+        <small>The boxed term is the cosmology-dependent halo mass function &mdash; <i>that's how $S_8\!=\!\sigma_8\sqrt{\Omega_m/0.3}$ enters</i>.
+        Assumes known selection $\Theta(\lambda\!\in\!{\rm bin})$ and mass-def conversion vir$\!\to\!200{\rm m}$ at the population layer.</small>
       </div>
     </div>
 
     <!-- 3. FIRST USE CASE -->
     <div class="card red">
-      <h2>First use case: population $(M,c)$ recovery</h2>
+      <h2>First use case: hyper-parameters of the $(M,c)$ population</h2>
       <div class="grow">
         <img src="data:image/png;base64,__HBI_MC__" alt="inferred population (M,c) distribution: recycle matches truth; naive stacking too wide">
       </div>
-      <div class="eq" style="margin-top:0.5em; font-size:0.86em; line-height:1.55;">
+      <div class="eq" style="margin-top:0.5em; font-size:0.84em; line-height:1.5;">
         <span style="color:var(--accent3);"><b>naive&nbsp;stack</b></span> &mdash; pool all per-cluster samples as if drawn from one distribution:<br>
-        $\widehat{p}_{\rm pop}(\theta) = \tfrac{1}{N_c S}\sum_{j,s}\delta(\theta-\theta_j^{(s)})\;\;\Rightarrow\;\;\widehat{\rm Var} = \tau^2 + 2\sigma_{\rm post}^2$<br>
+        $\widehat{p}_{\rm pop}(\theta) = \tfrac{1}{N_c S}\sum_{j,s}\delta(\theta-\theta_j^{(s)})\;\;\Rightarrow\;\;\widehat{\rm Var} = \tau^2 + 2\langle\sigma_{\rm post}^2\rangle$<br>
         <span style="color:var(--accent2);"><b>HBI recycle &#x267B;&#xFE0F;</b></span> &mdash; the hierarchical likelihood:<br>
         $p(\Lambda\mid d) \;\propto\; \pi(\Lambda)\,\prod_j\tfrac{1}{S}\sum_s\tfrac{p(\theta_j^{(s)}\mid\Lambda)}{\pi_0(\theta_j^{(s)})} \;\;\Rightarrow\;\; \widehat{\rm Var} = \tau^2$
       </div>
-      <p style="margin-top:0.3em;"><small>Adding $\lambda_j$ promotes $\Lambda$ to the richness&ndash;mass
-      relation &rarr; bridges to $S_8$ (see diagram above).</small></p>
+      <p style="margin-top:0.3em;"><small>$\sigma_{\rm post}$ = mean per-cluster posterior 1$\sigma$ width.
+      Toy at $z\!=\!0.3$, $\tau_M\!=\!0.25\,$dex (wider than physical $\sim\!0.1\,$dex, chosen for legibility);
+      $\rho_{Mc}\!=\!-0.3$ from Bhattacharya13 / Diemer-Kravtsov15.
+      Adding $\lambda_j$ promotes $\Lambda\!\to\!$ MOR$\,+\,$cosmology (see diagram).</small></p>
     </div>
 
   </div>
