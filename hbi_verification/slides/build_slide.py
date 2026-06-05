@@ -128,7 +128,7 @@ ul li{margin:.2em 0;}
       <h2>What <a href="https://github.com/LSSTDESC/CL-SBI">CL-SBI</a> gives us</h2>
       <p><b>Gill et al. (in prep.)</b> train an SBI emulator on NFW shear profiles &rarr; per-cluster
       $(M_{\rm vir},c_{\rm vir})$ posterior chains $\theta_j^{(s)}\!\sim\!p(\theta_j\!\mid\!d_j)$,
-      at $\gtrsim\!400\times$ MCMC speed<small> (Gill+, fig.&nbsp;13)</small>.</p>
+      at $\gtrsim\!400\times$ MCMC speed.</p>
       <p>The chains are <b>already produced and stored</b>. Gill et&nbsp;al. flag population-level
       inference as the next step but leave the formalism open.</p>
       <p><b>Our question:</b> can we combine $\{\theta_j^{(s)}\}_j$ into population constraints
@@ -143,36 +143,45 @@ ul li{margin:.2em 0;}
       <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\!\int\! p(d_j\mid\theta_j)\,p(\theta_j\mid\Lambda)\,d\theta_j$$</div>
       <p>The integral is expensive&mdash;<i>unless</i> we already have stored chains $\theta_j^{(s)}\!\sim\!p(\theta_j\!\mid\!d_j)$ from some prior $\pi_0$. <b>Recycle &#x267B;&#xFE0F; them</b> by importance re-weighting (Thrane&nbsp;&amp;&nbsp;Talbot&nbsp;2019):</p>
       <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{p(\theta_j^{(s)}\mid\Lambda)}{\pi_0(\theta_j^{(s)})}$$</div>
-      <p><b>Joint HBI</b> samples $(\Lambda,\{\theta_j\})$ &rarr; $\dim=\dim\Lambda+2N_c$ at every step.
+      <p><b>Joint HBI</b> samples $(\Lambda,\{\theta_j\})$ at every step.
       <b>Recycle &#x267B;&#xFE0F;</b> samples $\Lambda$ only &mdash; per-cluster work done <i>once, offline</i>, by CL-SBI.</p>
-      <div class="eq" style="margin-top:0.5em; font-size:0.82em; background:#fff7d6; border-color:#e0c068; line-height:1.5;">
+      <div class="eq" style="margin-top:0.5em; font-size:0.84em; background:#fff7d6; border-color:#e0c068; line-height:1.55;">
         <b>Bonus &mdash; bridge from $(M,c)$ to richness&ndash;mass.</b>
-        Each cluster also has $\lambda_j$ (catalog, no extra fit). Promote $\Lambda\!\to\!(A,B,\sigma_{\ln\lambda\mid M},\;\Omega_m,\sigma_8)$ and reuse the same chains $\{M_j^{(s)}\}$:<br>
-        $\;p(\Lambda\!\mid\!\mathrm{data})\,\propto\,\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{\mathcal N(\ln\lambda_j;\,A+B\ln(M_j^{(s)}/M_{\rm piv}),\,\sigma_{\ln\lambda\mid M}^2)\,\cdot\,\boxed{n_{\rm HMF}(M_j^{(s)};\,\Omega_m,\sigma_8)}}{\pi_0(M_j^{(s)})}$<br>
-        <small>The boxed term is the cosmology-dependent halo mass function &mdash; <i>that's how $S_8\!=\!\sigma_8\sqrt{\Omega_m/0.3}$ enters</i>.
-        Assumes known selection $\Theta(\lambda\!\in\!{\rm bin})$ and mass-def conversion vir$\!\to\!200{\rm m}$ at the population layer.</small>
+        Add observed $\lambda_j$; promote $\Lambda\!\to\!(A,B,\sigma_{\ln\lambda\mid M})$ + cosmology:<br>
+        $\;p(\Lambda\!\mid\!\mathrm{data})\,\propto\,\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{\mathcal N(\ln\lambda_j;\,A+B\ln M_j^{(s)},\,\sigma^2)\,\cdot\,\boxed{n_{\rm HMF}(M_j^{(s)};\,\Omega_m,\sigma_8)}}{\pi_0(M_j^{(s)})}$<br>
+        The boxed halo mass function carries cosmology &mdash; <i>this is how $S_8$ enters</i>.
       </div>
     </div>
 
     <!-- 3. FIRST USE CASE -->
     <div class="card red">
-      <h2>First use case: hyper-parameters of the $(M,c)$ population</h2>
+      <h2>First use case: the $(M,c)$ population</h2>
       <div class="grow">
         <img src="data:image/png;base64,__HBI_MC__" alt="inferred population (M,c) distribution: recycle matches truth; naive stacking too wide">
       </div>
-      <div class="eq" style="margin-top:0.5em; font-size:0.84em; line-height:1.5;">
-        <span style="color:var(--accent3);"><b>naive&nbsp;stack</b></span> &mdash; pool all per-cluster samples as if drawn from one distribution:<br>
-        $\widehat{p}_{\rm pop}(\theta) = \tfrac{1}{N_c S}\sum_{j,s}\delta(\theta-\theta_j^{(s)})\;\;\Rightarrow\;\;\widehat{\rm Var} = \tau^2 + 2\langle\sigma_{\rm post}^2\rangle$<br>
+      <div class="eq" style="margin-top:0.5em; font-size:0.86em; line-height:1.55;">
+        <span style="color:var(--accent3);"><b>naive&nbsp;stack</b></span> &mdash; pool all per-cluster samples:<br>
+        $\widehat{p}_{\rm pop}(\theta) = \tfrac{1}{N_c S}\sum_{j,s}\delta(\theta-\theta_j^{(s)})\;\;\Rightarrow\;\;\widehat{\rm Var} = \tau^2 + 2\sigma_{\rm post}^2$<br>
         <span style="color:var(--accent2);"><b>HBI recycle &#x267B;&#xFE0F;</b></span> &mdash; the hierarchical likelihood:<br>
         $p(\Lambda\mid d) \;\propto\; \pi(\Lambda)\,\prod_j\tfrac{1}{S}\sum_s\tfrac{p(\theta_j^{(s)}\mid\Lambda)}{\pi_0(\theta_j^{(s)})} \;\;\Rightarrow\;\; \widehat{\rm Var} = \tau^2$
       </div>
-      <p style="margin-top:0.3em;"><small>$\sigma_{\rm post}$ = mean per-cluster posterior 1$\sigma$ width.
-      Toy at $z\!=\!0.3$, $\tau_M\!=\!0.25\,$dex (wider than physical $\sim\!0.1\,$dex, chosen for legibility);
-      $\rho_{Mc}\!=\!-0.3$ from Bhattacharya13 / Diemer-Kravtsov15.
-      Adding $\lambda_j$ promotes $\Lambda\!\to\!$ MOR$\,+\,$cosmology (see diagram).</small></p>
     </div>
 
   </div>
+
+  <!-- SPEAKER NOTES (collapsible, hidden by default; for the presenter) -->
+  <details style="position:fixed; right:1.5vw; bottom:9vh; max-width:36vw; font-size:0.42em; line-height:1.5; background:#fffbe6; border:1px solid #e0c068; border-radius:8px; padding:0.6em 0.9em; box-shadow:0 2px 6px rgba(0,0,0,.10); z-index:50;">
+    <summary style="cursor:pointer; font-weight:600; color:#8a6c10;">&#x1F4DD; speaker notes (click to toggle)</summary>
+    <ul style="margin:.4em 0 0 .9em; padding:0; color:#4a3d10;">
+      <li><b>400&times; speed</b>: Gill+ fig.&nbsp;13.</li>
+      <li><b>Joint HBI dim</b>: $\dim\Lambda + 2N_c$ &mdash; two latents per cluster.</li>
+      <li><b>Mass def</b>: Akum stores $M_{\rm vir}$&nbsp;[$h^{-1}M_\odot$]; convert to $M_{200{\rm m}}$ at the population layer to use Tinker08 HMF and DES/SPT MOR fits.</li>
+      <li><b>Selection</b>: assume known $\Theta(\lambda \in {\rm bin})$. Full selection-function inference (Costanzi19, Bocquet24) is a drop-in extension.</li>
+      <li><b>Toy regime</b>: $z\!=\!0.3$, $\mu_M\!=\!14.30$, $\mu_c\!=\!5$, $\rho_{Mc}\!=\!-0.3$ (Bhattacharya13, Diemer&ndash;Kravtsov15). $\tau_M\!=\!0.25\,$dex chosen for figure legibility &mdash; realistic intrinsic spread in a $30\!&lt;\!\lambda\!&lt;\!45$ bin is $\sim\!0.10$&ndash;$0.15\,$dex.</li>
+      <li><b>$\sigma_{\rm post}$</b>: mean per-cluster posterior $1\sigma$ width (Gaussian, well-calibrated). Factor 2 in $\tau^2+2\sigma_{\rm post}^2$ = (within-cluster width)$^2$ + (variance of posterior centers around truth).</li>
+      <li><b>$\pi_0$ stability</b>: Akum's training prior is BoxUniform in $\log_{10}M\!\in\![12,17]$, so the HMF weight $n_{\rm HMF}(M)/\pi_0$ is well-behaved at $\log_{10}M\!\sim\!14$ (effective sample size $\gtrsim\!0.5S$). Monitor ESS.</li>
+    </ul>
+  </details>
 
   <!-- FOOTER -->
   <div class="foot">
