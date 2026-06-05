@@ -152,9 +152,11 @@ ul li{margin:.2em 0;}
       <div class="grow">
         <img src="data:image/png;base64,__HBI_MC__" alt="inferred population (M,c) distribution: recycle matches truth; naive stacking too wide">
       </div>
-      <div class="eq" style="margin-top:0.5em; font-size:0.92em;">
-        <span style="color:var(--accent3);">naive&nbsp;stack:</span>&nbsp;$\hat\tau^2 = \tau^2 + 2\sigma^2_{\rm per\text{-}cluster}$ &nbsp;&nbsp;&nbsp;
-        <span style="color:var(--accent2);">HBI&nbsp;recycle:</span>&nbsp;$\hat\tau^2 = \tau^2$
+      <div class="eq" style="margin-top:0.5em; font-size:0.86em; line-height:1.55;">
+        <span style="color:var(--accent3);"><b>naive&nbsp;stack</b></span> &mdash; pool all per-cluster samples as if drawn from one distribution:<br>
+        $\widehat{p}_{\rm pop}(\theta) = \tfrac{1}{N_c S}\sum_{j,s}\delta(\theta-\theta_j^{(s)})\;\;\Rightarrow\;\;\widehat{\rm Var} = \tau^2 + 2\sigma_{\rm post}^2$<br>
+        <span style="color:var(--accent2);"><b>HBI recycle</b></span> &mdash; the hierarchical likelihood:<br>
+        $p(\Lambda\mid d) \;\propto\; \pi(\Lambda)\,\prod_j\tfrac{1}{S}\sum_s\tfrac{p(\theta_j^{(s)}\mid\Lambda)}{\pi_0(\theta_j^{(s)})} \;\;\Rightarrow\;\; \widehat{\rm Var} = \tau^2$
       </div>
       <p style="margin-top:0.3em;"><small>Adding $\lambda_j$ promotes $\Lambda$ to the richness&ndash;mass
       relation &rarr; bridges to $S_8$ (see diagram above).</small></p>
