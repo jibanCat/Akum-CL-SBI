@@ -110,7 +110,7 @@ ul li{margin:.2em 0;}
   <div class="head">
     <div>
       <h1>A population-inference layer on top of <span style="color:var(--accent2);">CL-SBI</span>: reuse per-cluster posteriors hierarchically</h1>
-      <p class="sub">Follow-up to <i>Gill et&nbsp;al. (in&nbsp;prep.)</i> &mdash; recycle stored $\{\theta_j^{(s)}\}$ chains into a population hyper-posterior on $\Lambda$, without re-fitting any cluster.</p>
+      <p class="sub">Follow-up to <i>Gill et&nbsp;al. (in&nbsp;prep.)</i> &mdash; recycle &#x267B;&#xFE0F; stored $\{\theta_j^{(s)}\}$ chains into a population hyper-posterior on $\Lambda$, without re-fitting any cluster.</p>
     </div>
     <span class="pill">project pitch &middot; Ming-Feng Ho</span>
   </div>
@@ -136,14 +136,20 @@ ul li{margin:.2em 0;}
 
     <!-- 2. THE FRAMEWORK -->
     <div class="card green">
-      <h2>The recycle framework</h2>
+      <h2>The recycle &#x267B;&#xFE0F; framework</h2>
       <p>Population hyper-parameters $\Lambda$. <b>Hyper-posterior</b> marginalising each cluster's
       latent $\theta_j$:</p>
       <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\!\int\! p(d_j\mid\theta_j)\,p(\theta_j\mid\Lambda)\,d\theta_j$$</div>
-      <p>The integral is expensive&mdash;<i>unless</i> we already have stored chains $\theta_j^{(s)}\!\sim\!p(\theta_j\!\mid\!d_j)$ from some prior $\pi_0$. <b>Recycle them</b> by importance re-weighting (Thrane&nbsp;&amp;&nbsp;Talbot&nbsp;2019):</p>
+      <p>The integral is expensive&mdash;<i>unless</i> we already have stored chains $\theta_j^{(s)}\!\sim\!p(\theta_j\!\mid\!d_j)$ from some prior $\pi_0$. <b>Recycle &#x267B;&#xFE0F; them</b> by importance re-weighting (Thrane&nbsp;&amp;&nbsp;Talbot&nbsp;2019):</p>
       <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{p(\theta_j^{(s)}\mid\Lambda)}{\pi_0(\theta_j^{(s)})}$$</div>
       <p><b>Joint HBI</b> samples $(\Lambda,\{\theta_j\})$ &rarr; $\dim=\dim\Lambda+N_c$ at every step.
-      <b>Recycle</b> samples $\Lambda$ only &mdash; per-cluster work done <i>once, offline</i>, by CL-SBI.</p>
+      <b>Recycle &#x267B;&#xFE0F;</b> samples $\Lambda$ only &mdash; per-cluster work done <i>once, offline</i>, by CL-SBI.</p>
+      <div class="eq" style="margin-top:0.5em; font-size:0.85em; background:#fff7d6; border-color:#e0c068;">
+        <b>Bonus:</b> $\Lambda$ <i>can be the richness&ndash;mass relation itself.</i>
+        Take $\Lambda=(A,B,\sigma_{\ln\lambda\mid M})$ and<br>
+        $\;\;\;\;p(\theta_j\!\mid\!\Lambda)\;=\;\mathcal{N}\!\left(\ln\lambda_j\,;\,A+B\ln(M_j/M_{\rm piv}),\;\sigma_{\ln\lambda\mid M}^2\right)\,p(M_j)$<br>
+        &rarr; the same recycle &#x267B;&#xFE0F; identity calibrates the MOR &mdash; the input to $S_8$.
+      </div>
     </div>
 
     <!-- 3. FIRST USE CASE -->
@@ -155,7 +161,7 @@ ul li{margin:.2em 0;}
       <div class="eq" style="margin-top:0.5em; font-size:0.86em; line-height:1.55;">
         <span style="color:var(--accent3);"><b>naive&nbsp;stack</b></span> &mdash; pool all per-cluster samples as if drawn from one distribution:<br>
         $\widehat{p}_{\rm pop}(\theta) = \tfrac{1}{N_c S}\sum_{j,s}\delta(\theta-\theta_j^{(s)})\;\;\Rightarrow\;\;\widehat{\rm Var} = \tau^2 + 2\sigma_{\rm post}^2$<br>
-        <span style="color:var(--accent2);"><b>HBI recycle</b></span> &mdash; the hierarchical likelihood:<br>
+        <span style="color:var(--accent2);"><b>HBI recycle &#x267B;&#xFE0F;</b></span> &mdash; the hierarchical likelihood:<br>
         $p(\Lambda\mid d) \;\propto\; \pi(\Lambda)\,\prod_j\tfrac{1}{S}\sum_s\tfrac{p(\theta_j^{(s)}\mid\Lambda)}{\pi_0(\theta_j^{(s)})} \;\;\Rightarrow\;\; \widehat{\rm Var} = \tau^2$
       </div>
       <p style="margin-top:0.3em;"><small>Adding $\lambda_j$ promotes $\Lambda$ to the richness&ndash;mass
