@@ -152,9 +152,10 @@ ul li{margin:.2em 0;}
       <div class="grow">
         <img src="data:image/png;base64,__HBI_MC__" alt="inferred population (M,c) distribution: recycle matches truth; naive stacking too wide">
       </div>
-      <p style="margin-top:0.4em;"><b>Recycle (blue)</b> sits on the <b>truth (black)</b>.
-      <b>Naive mean stack (red)</b> and <b>OLS on posterior means (orange)</b> are visibly
-      wider &mdash; they fold per-cluster posterior noise into the population scatter once (OLS) or twice (pool).</p>
+      <div class="eq" style="margin-top:0.5em; font-size:0.92em;">
+        <span style="color:var(--accent3);">naive&nbsp;stack:</span>&nbsp;$\hat\tau^2 = \tau^2 + 2\sigma^2_{\rm per\text{-}cluster}$ &nbsp;&nbsp;&nbsp;
+        <span style="color:var(--accent2);">HBI&nbsp;recycle:</span>&nbsp;$\hat\tau^2 = \tau^2$
+      </div>
       <p style="margin-top:0.3em;"><small>Adding $\lambda_j$ promotes $\Lambda$ to the richness&ndash;mass
       relation &rarr; bridges to $S_8$ (see diagram above).</small></p>
     </div>
