@@ -148,13 +148,13 @@ ul li{margin:.2em 0;}
 
     <!-- 3. FIRST USE CASE -->
     <div class="card red">
-      <h2>First use case: population $(M,c)$ scatter</h2>
+      <h2>First use case: population $(M,c)$ recovery</h2>
       <div class="grow">
-        <img src="data:image/png;base64,__HBI_MC__" alt="HBI population (M,c) scatter recovery from CL-SBI chains">
+        <img src="data:image/png;base64,__HBI_MC__" alt="inferred population (M,c) distribution: recycle matches truth; naive stacking too wide">
       </div>
-      <p style="margin-top:0.4em;"><b>Naive stacking biases the population scatter</b> &mdash; mean-stacking
-      adds per-cluster noise on top, shared-$\theta$ fits inherit it as variance.
-      <b>Recycle deconvolves</b> and recovers the truth.</p>
+      <p style="margin-top:0.4em;"><b>Recycle (blue)</b> sits on the <b>truth (black)</b>.
+      <b>Naive mean stack (red)</b> and <b>OLS on posterior means (orange)</b> are visibly
+      wider &mdash; they fold per-cluster posterior noise into the population scatter once (OLS) or twice (pool).</p>
       <p style="margin-top:0.3em;"><small>Adding $\lambda_j$ promotes $\Lambda$ to the richness&ndash;mass
       relation &rarr; bridges to $S_8$ (see diagram above).</small></p>
     </div>
