@@ -155,8 +155,8 @@ ul li{margin:.2em 0;}
       <h2>Obvious solution: recycle &#x267B;&#xFE0F; the per-cluster posteriors</h2>
       <p>Hyper-posterior on population parameters $\Lambda$, marginalising each $\theta_j$:</p>
       <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\!\int\! p(d_j\mid\theta_j)\,p(\theta_j\mid\Lambda)\,d\theta_j$$</div>
-      <p>The integral is expensive &hellip; <i>unless</i> we already have stored chains $\theta_j^{(s)}$ under prior $\pi_0$. Reuse them by importance re-weighting:</p>
-      <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{p(\theta_j^{(s)}\mid\Lambda)}{\pi_0(\theta_j^{(s)})}$$</div>
+      <p>The integral is expensive &hellip; <i>unless</i> we already have stored chains $\theta_j^{(s)}\!\sim\!p(\theta_j\!\mid\!d_j)$ from per-cluster fits (with training prior $\pi_0$). The data likelihood $p(d_j\!\mid\!\theta_j)$ is <i>baked into</i> which samples appear; we just reweight the original prior $\pi_0$ to the population prior:</p>
+      <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{p(\theta_j^{(s)}\mid\Lambda)}{\pi_0(\theta_j^{(s)})}\,,\quad\theta_j^{(s)}\!\sim\!p(\theta_j\!\mid\!d_j)$$</div>
       <div class="eq" style="margin-top:0.5em; background:#fff7d6; border-color:#e0c068; line-height:1.55;">
         <b>Bonus &mdash; bridge to the mass&ndash;observable relation (MOR).</b>
         Add observed $\lambda_j$; promote $\Lambda\!\to\!(A,B,\sigma_{\ln\lambda\mid M})$ + cosmology:<br>
