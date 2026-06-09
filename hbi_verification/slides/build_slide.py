@@ -79,7 +79,7 @@ html,body{margin:0; padding:0; width:100vw; height:100vh; overflow:hidden;
 .card.red  {border-left-color:var(--accent3);}
 .card h2{font-size:clamp(13px, 1.32vw, 19px); color:var(--accent);
   margin:0 0 .4em 0; line-height:1.15; font-weight:700; letter-spacing:-0.005em;}
-.card p, .card li{font-size:clamp(10px, 0.92vw, 14px); line-height:1.4; margin:.35em 0;}
+.card p, .card li{font-size:clamp(11.5px, 1.05vw, 16px); line-height:1.4; margin:.4em 0;}
 .card small{font-size:clamp(8.5px, 0.78vw, 12px); color:var(--muted);}
 .card .eq{background:#fff; border:1px solid var(--line); border-radius:6px;
   padding:0.4vh 0.6vw; margin:.4em 0;}
@@ -126,24 +126,23 @@ ul li{margin:.2em 0;}
   <!-- THREE CARDS -->
   <div class="body3">
 
-    <!-- 1. WHAT CL-SBI GIVES US -->
+    <!-- 1. THE PROBLEM -->
     <div class="card">
-      <h2>What <a href="https://github.com/LSSTDESC/CL-SBI">CL-SBI</a> gives us</h2>
-      <p><b>Gill et al. (in prep.)</b> train an SBI emulator on NFW shear profiles &rarr; per-cluster
-      $(M_{\rm vir},c_{\rm vir})$ posterior chains $\theta_j^{(s)}\!\sim\!p(\theta_j\!\mid\!d_j)$.</p>
-      <p>The chains are <b>already produced and stored</b>. Population-level inference is flagged as
-      future work.</p>
-      <p><b>Our question:</b> combine $\{\theta_j^{(s)}\}_j$ into population constraints
-      <i>without re-fitting any cluster</i>?</p>
+      <h2>The problem</h2>
+      <p><b>Gill et al. (in prep.)</b>: <a href="https://github.com/LSSTDESC/CL-SBI">CL-SBI</a> trains SBI on NFW profiles &rarr; per-cluster $(M,c)$ posterior chains $\theta_j^{(s)}$.</p>
+      <ol style="margin:.4em 0 0 1.2em; padding:0;">
+        <li>How do we do <b>population-level inference</b> on top of these per-cluster SBI posteriors?</li>
+        <li>Re-doing joint-SBI or joint MCMC on the whole sample is <b>computationally wasteful</b>.</li>
+        <li>Memory footprint <b>scales fast with $N_c$</b> &mdash; the sampler space is $\dim\Lambda + 2N_c$.</li>
+      </ol>
     </div>
 
     <!-- 2. THE FRAMEWORK -->
     <div class="card green">
-      <h2>The recycle &#x267B;&#xFE0F; framework</h2>
-      <p>Population hyper-parameters $\Lambda$. <b>Hyper-posterior</b> marginalising each cluster's
-      latent $\theta_j$:</p>
+      <h2>Obvious solution: recycle &#x267B;&#xFE0F; the per-cluster posteriors</h2>
+      <p>Hyper-posterior on population parameters $\Lambda$, marginalising each $\theta_j$:</p>
       <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\!\int\! p(d_j\mid\theta_j)\,p(\theta_j\mid\Lambda)\,d\theta_j$$</div>
-      <p>The integral is expensive&mdash;<i>unless</i> we already have stored chains $\theta_j^{(s)}\!\sim\!p(\theta_j\!\mid\!d_j)$ from some prior $\pi_0$. <b>Recycle &#x267B;&#xFE0F; them</b> by importance re-weighting (Thrane&nbsp;&amp;&nbsp;Talbot&nbsp;2019):</p>
+      <p>The integral is expensive&mdash;<i>unless</i> we already have stored chains $\theta_j^{(s)}$ under prior $\pi_0$. Reuse them by importance re-weighting (Thrane&nbsp;&amp;&nbsp;Talbot&nbsp;2019):</p>
       <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{p(\theta_j^{(s)}\mid\Lambda)}{\pi_0(\theta_j^{(s)})}$$</div>
       <div class="eq" style="margin-top:0.5em; background:#fff7d6; border-color:#e0c068; line-height:1.55;">
         <b>Bonus &mdash; bridge to richness&ndash;mass.</b>
