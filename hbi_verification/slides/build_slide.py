@@ -100,6 +100,35 @@ ul li{margin:.2em 0;}
   border-top:1px solid var(--line);}
 .foot .refs a{color:var(--accent); margin-right:.7em; text-decoration:none;}
 .foot .refs a:hover{text-decoration:underline;}
+
+/* =============================================================
+   4:3 PROJECTOR MODE (aspect <= 1.4, ~ 4:3 = 1.33 and narrower)
+   At 4:3 the screen is much taller than wide vs 16:10 -- restack as
+   2x2 grid: Cards 1 & 2 share the top row; Card 3 (figure) spans
+   the full width below in a side-by-side figure | equations layout.
+   ============================================================= */
+@media (max-aspect-ratio: 14/10){
+  .deck{ grid-template-rows: 8vh 16vh 1fr 6vh; gap: 0.6vh; }
+  .hero img{ max-height:15vh; }
+  .body3{
+    grid-template-columns: 1fr 1.05fr;
+    grid-template-rows: minmax(0, 1.05fr) minmax(0, 1.25fr);
+    gap: 0.9vh 0.9vw;
+  }
+  .body3 > .card:nth-child(1){ grid-column:1; grid-row:1; }
+  .body3 > .card:nth-child(2){ grid-column:2; grid-row:1; }
+  /* Card 3 spans the full bottom row -- title on top, figure | equations below */
+  .body3 > .card:nth-child(3){ grid-column: 1 / span 2; grid-row:2;
+    display:grid; grid-template-rows:auto 1fr; grid-template-columns:1.55fr 1fr;
+    gap: 0.4vh 1.2vw; }
+  .body3 > .card:nth-child(3) > h2  { grid-column: 1 / span 2; grid-row:1; }
+  .body3 > .card:nth-child(3) > .grow{ grid-column:1; grid-row:2; margin-top:0; }
+  .body3 > .card:nth-child(3) > .eq { grid-column:2; grid-row:2; align-self:center; }
+  /* Bump card text a touch since the columns are wider in 4:3 */
+  .card p, .card li{ font-size:clamp(12px, 1.7vh, 17px); }
+  .card h2{ font-size:clamp(14px, 2.2vh, 21px); }
+  .card .eq .katex{ font-size:clamp(11px, 1.7vh, 17px) !important; }
+}
 </style>
 </head>
 <body>
