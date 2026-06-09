@@ -114,7 +114,7 @@ ul li{margin:.2em 0;}
     </div>
     <div style="text-align:right; line-height:1.3;">
       <span class="pill">project pitch &middot; Ming-Feng Ho</span><br>
-      <span style="font-size:clamp(8.5px, 0.7vw, 11.5px); color:var(--muted); font-style:italic;">student: Aidan Behmer &nbsp;&middot;&nbsp; PI: Camille Avestruz &nbsp;(U.&nbsp;Michigan)</span>
+      <span style="font-size:clamp(8.5px, 0.7vw, 11.5px); color:var(--muted); font-style:italic;">Lead student: Aidan Behmer &nbsp;&middot;&nbsp; PI: Camille Avestruz &nbsp;(U.&nbsp;Michigan)</span>
     </div>
   </div>
 
@@ -129,12 +129,14 @@ ul li{margin:.2em 0;}
     <!-- 1. THE PROBLEM -->
     <div class="card">
       <h2>The problem</h2>
-      <p><b>Gill et al. (in prep.)</b>: <a href="https://github.com/LSSTDESC/CL-SBI">CL-SBI</a> trains SBI on NFW profiles &rarr; per-cluster $(M,c)$ posterior chains $\theta_j^{(s)}$.</p>
-      <ol style="margin:.4em 0 0 1.2em; padding:0;">
-        <li>How do we do <b>population-level inference</b> on top of these per-cluster SBI posteriors?</li>
-        <li>Re-doing joint-SBI or joint MCMC on the whole sample is <b>computationally wasteful</b>.</li>
-        <li>Memory footprint <b>scales fast with $N_c$</b> &mdash; the sampler space is $\dim\Lambda + 2N_c$.</li>
+      <p><b>Gill et al. (in prep.)</b>: <a href="https://github.com/LSSTDESC/CL-SBI">CL-SBI</a> trains SBI on NFW profiles &rarr; per-cluster $(M,c)$ posterior chains $\theta_j^{(s)}$, already produced and stored.</p>
+      <p><i>Now we want population-level inference on top of these. Three obstacles:</i></p>
+      <ol style="margin:.3em 0 0 1.2em; padding:0;">
+        <li>How to do <b>population inference</b> from SBI per-cluster posteriors at all?</li>
+        <li>Re-doing joint-SBI or joint MCMC is <b>computationally wasteful</b>.</li>
+        <li>For large $N_c$, joint inference is <b>prohibitive</b>: HBI chains over $\dim\Lambda + 2N_c$ blow up in memory and convergence.</li>
       </ol>
+      <p style="margin-top:.5em;"><b>Good news:</b> this recycling routine is already established in the gravitational-wave population literature (Thrane &amp; Talbot 2019; Mandel, Farr &amp; Gair 2019).</p>
     </div>
 
     <!-- 2. THE FRAMEWORK -->
@@ -142,13 +144,12 @@ ul li{margin:.2em 0;}
       <h2>Obvious solution: recycle &#x267B;&#xFE0F; the per-cluster posteriors</h2>
       <p>Hyper-posterior on population parameters $\Lambda$, marginalising each $\theta_j$:</p>
       <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\!\int\! p(d_j\mid\theta_j)\,p(\theta_j\mid\Lambda)\,d\theta_j$$</div>
-      <p>The integral is expensive&mdash;<i>unless</i> we already have stored chains $\theta_j^{(s)}$ under prior $\pi_0$. Reuse them by importance re-weighting (Thrane&nbsp;&amp;&nbsp;Talbot&nbsp;2019):</p>
+      <p>The integral is expensive &hellip; <i>unless</i> we already have stored chains $\theta_j^{(s)}$ under prior $\pi_0$. Reuse them by importance re-weighting:</p>
       <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{p(\theta_j^{(s)}\mid\Lambda)}{\pi_0(\theta_j^{(s)})}$$</div>
       <div class="eq" style="margin-top:0.5em; background:#fff7d6; border-color:#e0c068; line-height:1.55;">
-        <b>Bonus &mdash; bridge to richness&ndash;mass.</b>
+        <b>Bonus &mdash; bridge to the mass&ndash;observable relation (MOR).</b>
         Add observed $\lambda_j$; promote $\Lambda\!\to\!(A,B,\sigma_{\ln\lambda\mid M})$ + cosmology:<br>
-        $\;p(\Lambda\!\mid\!\mathrm{data})\,\propto\,\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{\mathcal N(\ln\lambda_j;\,A+B\ln M_j^{(s)},\,\sigma^2)\,\cdot\,\boxed{n_{\rm HMF}(M_j^{(s)};\,\Omega_m,\sigma_8)}}{\pi_0(M_j^{(s)})}$<br>
-        The boxed halo mass function carries cosmology &mdash; <i>this is how $S_8$ enters</i>.
+        $\;p(\Lambda\!\mid\!\mathrm{data})\,\propto\,\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{\mathcal N(\ln\lambda_j;\,A+B\ln M_j^{(s)},\,\sigma^2)\,\cdot\,\boxed{n_{\rm HMF}(M_j^{(s)};\,\Omega_m,\sigma_8)}}{\pi_0(M_j^{(s)})}$
       </div>
     </div>
 
@@ -162,7 +163,8 @@ ul li{margin:.2em 0;}
         <span style="color:var(--accent3);"><b>naive&nbsp;stack</b></span> &mdash; pool all per-cluster samples:<br>
         $\widehat{\rm Var} = \tau^2 + 2\sigma_{\rm post}^2$ <i>(biased)</i><br>
         <span style="color:var(--accent2);"><b>HBI recycle &#x267B;&#xFE0F;</b></span> &mdash; hierarchical likelihood:<br>
-        $\widehat{\rm Var} = \tau^2$ <i>(deconvolves to truth)</i>
+        $\widehat{\rm Var} = \tau^2$ <i>(deconvolves to truth)</i><br>
+        <small>$\tau$ = population scatter; $\sigma_{\rm post}$ = per-cluster posterior 1$\sigma$ width.</small>
       </div>
     </div>
 
