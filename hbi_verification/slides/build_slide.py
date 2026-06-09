@@ -112,7 +112,10 @@ ul li{margin:.2em 0;}
       <h1>A population-inference layer on top of <span style="color:var(--accent2);">CL-SBI</span>: reuse per-cluster posteriors hierarchically</h1>
       <p class="sub">Follow-up to <i>Gill et&nbsp;al. (in&nbsp;prep.)</i> &mdash; recycle &#x267B;&#xFE0F; stored $\{\theta_j^{(s)}\}$ chains into a population hyper-posterior on $\Lambda$, without re-fitting any cluster.</p>
     </div>
-    <span class="pill">project pitch &middot; Ming-Feng Ho</span>
+    <div style="text-align:right; line-height:1.3;">
+      <span class="pill">project pitch &middot; Ming-Feng Ho</span><br>
+      <span style="font-size:clamp(8.5px, 0.7vw, 11.5px); color:var(--muted); font-style:italic;">student: Aidan Behmer &nbsp;&middot;&nbsp; PI: Camille Avestruz &nbsp;(U.&nbsp;Michigan)</span>
+    </div>
   </div>
 
   <!-- HERO PIPELINE -->
@@ -127,12 +130,11 @@ ul li{margin:.2em 0;}
     <div class="card">
       <h2>What <a href="https://github.com/LSSTDESC/CL-SBI">CL-SBI</a> gives us</h2>
       <p><b>Gill et al. (in prep.)</b> train an SBI emulator on NFW shear profiles &rarr; per-cluster
-      $(M_{\rm vir},c_{\rm vir})$ posterior chains $\theta_j^{(s)}\!\sim\!p(\theta_j\!\mid\!d_j)$,
-      at $\gtrsim\!400\times$ MCMC speed.</p>
-      <p>The chains are <b>already produced and stored</b>. Gill et&nbsp;al. flag population-level
-      inference as the next step but leave the formalism open.</p>
-      <p><b>Our question:</b> can we combine $\{\theta_j^{(s)}\}_j$ into population constraints
-      <i>without re-fitting any cluster</i>, and without the cost of a joint $(\Lambda,\{\theta_j\})$&nbsp;HBI?</p>
+      $(M_{\rm vir},c_{\rm vir})$ posterior chains $\theta_j^{(s)}\!\sim\!p(\theta_j\!\mid\!d_j)$.</p>
+      <p>The chains are <b>already produced and stored</b>. Population-level inference is flagged as
+      future work.</p>
+      <p><b>Our question:</b> combine $\{\theta_j^{(s)}\}_j$ into population constraints
+      <i>without re-fitting any cluster</i>?</p>
     </div>
 
     <!-- 2. THE FRAMEWORK -->
@@ -143,10 +145,8 @@ ul li{margin:.2em 0;}
       <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\!\int\! p(d_j\mid\theta_j)\,p(\theta_j\mid\Lambda)\,d\theta_j$$</div>
       <p>The integral is expensive&mdash;<i>unless</i> we already have stored chains $\theta_j^{(s)}\!\sim\!p(\theta_j\!\mid\!d_j)$ from some prior $\pi_0$. <b>Recycle &#x267B;&#xFE0F; them</b> by importance re-weighting (Thrane&nbsp;&amp;&nbsp;Talbot&nbsp;2019):</p>
       <div class="eq">$$p(\Lambda\mid \mathrm{data})\;\propto\;\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{p(\theta_j^{(s)}\mid\Lambda)}{\pi_0(\theta_j^{(s)})}$$</div>
-      <p><b>Joint HBI</b> samples $(\Lambda,\{\theta_j\})$ at every step.
-      <b>Recycle &#x267B;&#xFE0F;</b> samples $\Lambda$ only &mdash; per-cluster work done <i>once, offline</i>, by CL-SBI.</p>
-      <div class="eq" style="margin-top:0.5em; font-size:0.84em; background:#fff7d6; border-color:#e0c068; line-height:1.55;">
-        <b>Bonus &mdash; bridge from $(M,c)$ to richness&ndash;mass.</b>
+      <div class="eq" style="margin-top:0.5em; background:#fff7d6; border-color:#e0c068; line-height:1.55;">
+        <b>Bonus &mdash; bridge to richness&ndash;mass.</b>
         Add observed $\lambda_j$; promote $\Lambda\!\to\!(A,B,\sigma_{\ln\lambda\mid M})$ + cosmology:<br>
         $\;p(\Lambda\!\mid\!\mathrm{data})\,\propto\,\pi(\Lambda)\,\prod_j\,\tfrac1S\!\sum_s\!\tfrac{\mathcal N(\ln\lambda_j;\,A+B\ln M_j^{(s)},\,\sigma^2)\,\cdot\,\boxed{n_{\rm HMF}(M_j^{(s)};\,\Omega_m,\sigma_8)}}{\pi_0(M_j^{(s)})}$<br>
         The boxed halo mass function carries cosmology &mdash; <i>this is how $S_8$ enters</i>.
@@ -159,11 +159,11 @@ ul li{margin:.2em 0;}
       <div class="grow">
         <img src="data:image/png;base64,__HBI_MC__" alt="inferred population (M,c) distribution: recycle matches truth; naive stacking too wide">
       </div>
-      <div class="eq" style="margin-top:0.5em; font-size:0.86em; line-height:1.55;">
+      <div class="eq" style="margin-top:0.5em; line-height:1.55;">
         <span style="color:var(--accent3);"><b>naive&nbsp;stack</b></span> &mdash; pool all per-cluster samples:<br>
-        $\widehat{p}_{\rm pop}(\theta) = \tfrac{1}{N_c S}\sum_{j,s}\delta(\theta-\theta_j^{(s)})\;\;\Rightarrow\;\;\widehat{\rm Var} = \tau^2 + 2\sigma_{\rm post}^2$<br>
-        <span style="color:var(--accent2);"><b>HBI recycle &#x267B;&#xFE0F;</b></span> &mdash; the hierarchical likelihood:<br>
-        $p(\Lambda\mid d) \;\propto\; \pi(\Lambda)\,\prod_j\tfrac{1}{S}\sum_s\tfrac{p(\theta_j^{(s)}\mid\Lambda)}{\pi_0(\theta_j^{(s)})} \;\;\Rightarrow\;\; \widehat{\rm Var} = \tau^2$
+        $\widehat{\rm Var} = \tau^2 + 2\sigma_{\rm post}^2$ <i>(biased)</i><br>
+        <span style="color:var(--accent2);"><b>HBI recycle &#x267B;&#xFE0F;</b></span> &mdash; hierarchical likelihood:<br>
+        $\widehat{\rm Var} = \tau^2$ <i>(deconvolves to truth)</i>
       </div>
     </div>
 
